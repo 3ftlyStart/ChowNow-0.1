@@ -3,7 +3,8 @@ import { MENU_ITEMS, DELIVERY_FEE } from '../constants';
 import { MenuItem } from '../types';
 
 // Initialize the API client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : '';
+const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
 const postToInstagramTool: FunctionDeclaration = {
   name: 'postToInstagram',
@@ -60,7 +61,7 @@ let chatSession: Chat | null = null;
 export const getChatSession = (): Chat => {
   if (!chatSession) {
     chatSession = ai.chats.create({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       config: {
         systemInstruction: SYSTEM_PROMPT,
         tools: [{ functionDeclarations: [postToInstagramTool] }],

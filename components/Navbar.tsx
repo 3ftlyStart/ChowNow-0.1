@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, HandPlatter, History, CalendarClock } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '../context/CartContext';
 import { ScheduleOrderModal } from './ScheduleOrderModal';
 
@@ -9,13 +10,17 @@ export const Navbar: React.FC = () => {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [animateCart, setAnimateCart] = useState(false);
 
-  // Trigger animation when item count changes
+  const prevItemCount = React.useRef(itemCount);
+
+  // Trigger animation when item count increases
   useEffect(() => {
-    if (itemCount > 0) {
+    if (itemCount > prevItemCount.current) {
       setAnimateCart(true);
       const timer = setTimeout(() => setAnimateCart(false), 300);
+      prevItemCount.current = itemCount;
       return () => clearTimeout(timer);
     }
+    prevItemCount.current = itemCount;
   }, [itemCount]);
 
   return (
@@ -58,22 +63,32 @@ export const Navbar: React.FC = () => {
               </button>
 
               {/* Cart Trigger */}
-              <button 
+              <motion.button 
                 onClick={() => setIsCartOpen(true)}
-                className={`flex items-center space-x-1 p-2 text-brand-dark hover:text-brand-red transition-all group ${animateCart ? 'scale-110' : 'scale-100'}`}
+                animate={animateCart ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="flex items-center space-x-1 p-2 text-brand-dark hover:text-brand-red transition-all group"
               >
                 {total > 0 && (
                    <span className="font-display font-bold text-lg mr-1">${total.toFixed(2)}</span>
                 )}
                 <div className="relative">
                   <ShoppingBag size={28} className={animateCart ? 'text-brand-red' : ''} />
-                  {itemCount > 0 && (
-                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-brand-red rounded-full group-hover:scale-110 transition-transform">
-                      {itemCount}
-                    </span>
-                  )}
+                  <AnimatePresence>
+                    {itemCount > 0 && (
+                      <motion.span 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        key="cart-badge"
+                        className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-brand-red rounded-full group-hover:scale-110 transition-transform"
+                      >
+                        {itemCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>

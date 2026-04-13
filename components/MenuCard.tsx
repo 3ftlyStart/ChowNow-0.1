@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Loader2, Power, Sparkles, Image as ImageIcon, Check, Instagram, Share2, X, Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { MenuItem } from '../types';
 import { useCart } from '../context/CartContext';
 import { generateMenuItemImage } from '../services/geminiService';
@@ -30,7 +31,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
   const [loadingEmoji, setLoadingEmoji] = useState('🍔');
   const [imageError, setImageError] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  const [particles, setParticles] = useState<{id: number, x: number, y: number, emoji: string}[]>([]);
+  const [particles, setParticles] = useState<{id: number, angle: number, distance: number, emoji: string, size: number}[]>([]);
   const [showShare, setShowShare] = useState(false);
 
   const isFavorite = favorites.includes(item.id);
@@ -84,12 +85,12 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
     setIsAdded(true);
     
     // Trigger Particles
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    const newParticles = Array.from({ length: 8 }).map((_, i) => ({
-      id: Date.now() + i,
-      x: Math.random() * 40 - 20, // Spread X
-      y: Math.random() * 40 - 20, // Spread Y
-      emoji: ['😋', '🍔', '🍟', '✨', '🔥'][Math.floor(Math.random() * 5)]
+    const newParticles = Array.from({ length: 12 }).map((_, i) => ({
+      id: Math.random(),
+      angle: Math.random() * Math.PI * 2,
+      distance: 50 + Math.random() * 100,
+      emoji: ['😋', '🍔', '🍟', '🍕', '🍩', '✨'][Math.floor(Math.random() * 6)],
+      size: 15 + Math.random() * 15
     }));
     setParticles(newParticles);
 
@@ -231,21 +232,31 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
             )}
             
             {/* Particles */}
-            {particles.map((p) => (
-              <span 
-                key={p.id}
-                className="absolute pointer-events-none animate-fade-in-up"
-                style={{
-                  left: '50%',
-                  top: '50%',
-                  transform: `translate(${p.x}px, ${p.y}px)`,
-                  fontSize: '1.2rem',
-                  opacity: 0
-                }}
-              >
-                {p.emoji}
-              </span>
-            ))}
+            <AnimatePresence>
+              {particles.map((p: any) => (
+                <motion.span 
+                  key={p.id}
+                  initial={{ x: 0, y: 0, opacity: 1, scale: 0.5 }}
+                  animate={{ 
+                    x: Math.cos(p.angle) * p.distance, 
+                    y: Math.sin(p.angle) * p.distance, 
+                    opacity: 0,
+                    scale: 1.5,
+                    rotate: p.angle * 180 / Math.PI
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="absolute pointer-events-none z-50"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    fontSize: `${p.size}px`,
+                  }}
+                >
+                  {p.emoji}
+                </motion.span>
+              ))}
+            </AnimatePresence>
           </button>
 
           {/* Share Button */}
