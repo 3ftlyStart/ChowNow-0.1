@@ -379,7 +379,7 @@ const AppContent: React.FC = () => {
               <div className="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Star size={24} />
             </div>
-            <h4 className="font-bold text-lg mb-2">Chow~Sho! Specials</h4>
+            <h4 className="font-bold text-lg mb-2">ChowNow Specials</h4>
             <p className="text-gray-600 text-sm">Best value family boxes and combos every single day.</p>
           </div>
         </div>
@@ -387,7 +387,7 @@ const AppContent: React.FC = () => {
 
       {/* Footer */}
       <footer className="bg-brand-dark text-white py-8 text-center">
-        <p className="font-display font-bold text-lg mb-2 font-display">Chow~Sho!</p>
+        <p className="font-display font-bold text-lg mb-2 font-display">ChowNow</p>
         <p className="text-gray-300 text-sm mb-3">7742 Victoria Range, Masvingo</p>
         <p className="text-gray-400 text-sm">© {new Date().getFullYear()} All rights reserved. Made with ❤️ & 🍔</p>
       </footer>

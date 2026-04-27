@@ -35,7 +35,7 @@ export const Navbar: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-3xl sm:text-5xl font-display font-bold text-brand-dark tracking-tight leading-none">
-                  Chow~Sho!
+                  ChowNow
                 </h1>
               </div>
             </div>

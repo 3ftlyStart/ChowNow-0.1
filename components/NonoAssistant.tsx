@@ -11,7 +11,7 @@ interface NonoAssistantProps {
 export const NonoAssistant: React.FC<NonoAssistantProps> = ({ onPostToInstagram }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: '1', role: 'model', text: 'Hi! I\'m Nono! 🍔 Curious about our Chow~Sho! specials? Ask me anything!' }
+    { id: '1', role: 'model', text: 'Hi! I\'m Nono! 🍔 Curious about our ChowNow specials? Ask me anything!' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);

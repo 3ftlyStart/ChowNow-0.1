@@ -118,6 +118,20 @@ export const AdminMenuItemForm: React.FC<AdminMenuItemFormProps> = ({ onAdd, onC
              </div>
           </div>
 
+          {/* Image Seed */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Image Seed (ID for AI generation)</label>
+            <input 
+              required
+              type="number" 
+              min="1"
+              value={formData.imageSeed || ''}
+              onChange={e => setFormData({...formData, imageSeed: parseInt(e.target.value)})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-red focus:border-transparent outline-none"
+              placeholder="123"
+            />
+          </div>
+
           {/* Featured */}
           <div className="flex items-center gap-2 mb-3 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 cursor-pointer w-fit" onClick={() => setFormData({...formData, featured: !formData.featured})}>
               <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${formData.featured ? 'bg-brand-yellow text-brand-dark' : 'bg-white border border-gray-300'}`}>

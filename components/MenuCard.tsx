@@ -24,6 +24,14 @@ interface MenuCardProps {
   onPostToInstagram?: (caption: string, topic: string) => void;
 }
 
+interface Particle {
+  id: number;
+  angle: number;
+  distance: number;
+  emoji: string;
+  size: number;
+}
+
 export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleAvailability, onPostToInstagram }) => {
   const { addToCart, favorites, toggleFavorite } = useCart();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -31,7 +39,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
   const [loadingEmoji, setLoadingEmoji] = useState('🍔');
   const [imageError, setImageError] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  const [particles, setParticles] = useState<{id: number, angle: number, distance: number, emoji: string, size: number}[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
   const [showShare, setShowShare] = useState(false);
 
   const isFavorite = favorites.includes(item.id);
@@ -104,7 +112,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
   const handleAdminInstaPost = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onPostToInstagram) {
-       onPostToInstagram(`Just launched: The ${item.name}! 📸 ${item.description.slice(0, 30)}... Come get it now! #ChowSho #${item.category}`, item.category);
+       onPostToInstagram(`Just launched: The ${item.name}! 📸 ${item.description.slice(0, 30)}... Come get it now! #ChowNow #${item.category}`, item.category);
     }
   }
 
@@ -112,7 +120,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
   const displayImage = imageUrl || `https://picsum.photos/seed/${item.imageSeed}/400/300`;
 
   const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}?item=${item.id}` : '';
-  const shareTitle = `Check out the ${item.name} at Chow~Sho! 🍔`;
+  const shareTitle = `Check out the ${item.name} at ChowNow 🍔`;
 
   return (
     <div className={`bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300 border ${item.featured ? 'border-brand-yellow ring-4 ring-brand-yellow/10' : 'border-transparent hover:border-brand-yellow/50'} flex flex-col h-full ${!item.available && !isAdminMode ? 'opacity-80 grayscale-[0.5]' : ''}`}>
@@ -233,7 +241,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
             
             {/* Particles */}
             <AnimatePresence>
-              {particles.map((p: any) => (
+              {particles.map((p) => (
                 <motion.span 
                   key={p.id}
                   initial={{ x: 0, y: 0, opacity: 1, scale: 0.5 }}
@@ -241,16 +249,20 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
                     x: Math.cos(p.angle) * p.distance, 
                     y: Math.sin(p.angle) * p.distance, 
                     opacity: 0,
-                    scale: 1.5,
-                    rotate: p.angle * 180 / Math.PI
+                    scale: 2.5,
+                    rotate: p.angle * 180 / Math.PI + 360
                   }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="absolute pointer-events-none z-50"
+                  className="absolute pointer-events-none z-50 flex items-center justify-center"
                   style={{
                     left: '50%',
                     top: '50%',
                     fontSize: `${p.size}px`,
+                    width: '30px',
+                    height: '30px',
+                    marginLeft: '-15px',
+                    marginTop: '-15px'
                   }}
                 >
                   {p.emoji}
@@ -271,7 +283,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, isAdminMode, onToggleA
           {/* Share Menu */}
           {showShare && (
              <div className="absolute bottom-full right-0 mb-2 p-2 bg-white rounded-xl shadow-2xl border border-gray-100 flex gap-2 z-50 animate-fade-in-up items-center">
-                 <FacebookShareButton url={shareUrl} hashtag="#ChowSho">
+                 <FacebookShareButton url={shareUrl} hashtag="#ChowNow">
                     <FacebookIcon size={32} round />
                  </FacebookShareButton>
                  <TwitterShareButton url={shareUrl} title={shareTitle}>

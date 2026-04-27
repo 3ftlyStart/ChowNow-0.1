@@ -125,7 +125,7 @@ export const CartDrawer: React.FC = () => {
 
   const handleWhatsAppOrder = () => {
     const itemsList = cart.map(i => `• ${i.quantity}x ${i.name} ($${(i.price * i.quantity).toFixed(2)})`).join('\n');
-    let message = `*New ${details.orderType.toUpperCase()} Order for Chow~Sho!* 🍔\n\n` +
+    let message = `*New ${details.orderType.toUpperCase()} Order for ChowNow* 🍔\n\n` +
       `*Customer:* ${details.name}\n` +
       `*Phone:* ${details.phone}\n`;
 
