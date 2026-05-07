@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
-import { X, RefreshCw, Calendar, Clock, Bike, Store, MapPin, CheckCircle, ChefHat, Package, Home } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, RefreshCw, Calendar, Clock, Bike, Store, MapPin, CheckCircle, ChefHat, Package, Home, User, MessageCircle, Navigation } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '../context/CartContext';
 import { OrderHistoryItem, OrderStatus } from '../types';
 import { STORE_COORDINATES } from '../constants';
@@ -38,6 +39,21 @@ export const OrderHistoryModal: React.FC = () => {
   }
 
   const StatusTimeline = ({ order }: { order: OrderHistoryItem }) => {
+    const [simulatedProgress, setSimulatedProgress] = useState(15);
+    
+    // Simulate real-time driver movement if out for delivery
+    useEffect(() => {
+      if (order.status === 'out_for_delivery') {
+        const interval = setInterval(() => {
+          setSimulatedProgress(prev => {
+            if (prev >= 85) return 15; // Loop for simulation
+            return prev + 0.5;
+          });
+        }, 100);
+        return () => clearInterval(interval);
+      }
+    }, [order.status]);
+
     // Determine progress index
     const stages: OrderStatus[] = order.details.orderType === 'delivery' 
       ? ['placed', 'preparing', 'out_for_delivery', 'completed']
@@ -92,57 +108,104 @@ export const OrderHistoryModal: React.FC = () => {
 
         {/* Live Map / Action Area */}
         {order.details.orderType === 'delivery' && currentStatus === 'out_for_delivery' && (
-           <div className="bg-blue-50 rounded-lg p-3 border border-blue-100 mb-3 animate-fade-in">
-             <div className="flex items-center gap-3">
-               <div className="bg-white p-2 rounded-full animate-bounce shadow-sm text-blue-600">
-                 <Bike size={24} />
-               </div>
-               <div>
-                 <p className="text-sm font-bold text-blue-900">Your order is on the way!</p>
-                 <p className="text-xs text-blue-700">Driver is nearby. Est: {getEstimatedArrival(order.date)}</p>
-               </div>
+           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100 mb-3 animate-fade-in shadow-sm">
+             <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="bg-brand-red p-2 rounded-full shadow-lg text-white ring-4 ring-brand-red/10">
+                      <Bike size={20} />
+                    </div>
+                    <motion.div 
+                      className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-800">Your order is on the way!</p>
+                    <p className="text-[10px] text-gray-500 flex items-center gap-1 uppercase tracking-wider font-bold">
+                       Est: <span className="text-blue-600">{getEstimatedArrival(order.date)}</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button className="p-2 bg-white rounded-full text-blue-600 shadow-sm border border-blue-100 hover:bg-blue-50 transition">
+                    <MessageCircle size={16} />
+                  </button>
+                  <button className="p-2 bg-white rounded-full text-blue-600 shadow-sm border border-blue-100 hover:bg-blue-50 transition">
+                    <Navigation size={16} />
+                  </button>
+                </div>
              </div>
+
              {order.details.coordinates && (
-                <div className="mt-3 h-32 bg-gray-200 rounded-xl overflow-hidden relative border border-gray-300 shadow-inner group">
-                    {/* Simulated Map Visuals */}
-                    <div className="absolute inset-0 bg-[#f0f0f0]">
-                        {/* Roads */}
-                        <div className="absolute top-1/2 left-0 right-0 h-6 bg-gray-300 transform -translate-y-1/2"></div>
-                        <div className="absolute top-0 bottom-0 left-1/2 w-6 bg-gray-300 transform -translate-x-1/2"></div>
+                <div className="relative h-44 bg-[#e5e7eb] rounded-xl overflow-hidden shadow-inner border border-gray-200">
+                    {/* Simulated Map Background */}
+                    <svg className="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <path d="M0,50 L100,50" stroke="#d1d5db" strokeWidth="10" fill="none" />
+                      <path d="M50,0 L50,100" stroke="#d1d5db" strokeWidth="10" fill="none" />
+                      <rect x="10" y="10" width="15" height="15" fill="#9ca3af" rx="2" />
+                      <rect x="75" y="75" width="15" height="15" fill="#9ca3af" rx="2" />
+                      <circle cx="85" cy="25" r="10" fill="#a7f3d0" /> {/* Park */}
+                    </svg>
+                    
+                    {/* Road Network */}
+                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-10 bg-gray-300/50"></div>
+                    
+                    {/* Path Line */}
+                    <div className="absolute top-1/2 left-[10%] right-[10%] h-1 bg-blue-200 -translate-y-1/2 rounded-full overflow-hidden">
+                       <motion.div 
+                        className="h-full bg-blue-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${((simulatedProgress - 15) / 70) * 100}%` }}
+                       />
                     </div>
 
                     {/* Store Pin */}
                     <div className="absolute top-1/2 left-[10%] -translate-y-1/2 flex flex-col items-center z-10">
-                        <Store size={16} className="text-gray-600" />
-                        <span className="text-[9px] font-bold text-gray-500">Shop</span>
+                        <div className="p-1.5 bg-brand-dark rounded-full shadow-md text-white">
+                          <Store size={14} />
+                        </div>
+                        <span className="text-[8px] font-bold text-gray-600 bg-white/80 px-1 rounded mt-1">Shop</span>
                     </div>
 
                     {/* House Pin */}
                     <div className="absolute top-1/2 right-[10%] -translate-y-1/2 flex flex-col items-center z-10">
-                        <Home size={16} className="text-brand-red" />
-                        <span className="text-[9px] font-bold text-brand-red">You</span>
+                        <motion.div 
+                          className="p-1.5 bg-brand-red rounded-full shadow-md text-white"
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        >
+                          <Home size={14} />
+                        </motion.div>
+                        <span className="text-[8px] font-bold text-brand-red bg-white/80 px-1 rounded mt-1">You</span>
                     </div>
                     
                     {/* Animated Bike */}
-                    <div 
-                        className="absolute top-1/2 -translate-y-1/2 z-20 transition-all duration-[5000ms] ease-linear"
-                        style={{ 
-                            left: '15%',
-                            animation: 'driveMap 5s linear infinite'
-                        }}
+                    <motion.div 
+                        className="absolute top-1/2 -translate-y-1/2 z-20"
+                        style={{ left: `${simulatedProgress}%` }}
                     >
-                        <style>{`
-                            @keyframes driveMap {
-                                0% { left: 15%; }
-                                50% { left: 85%; }
-                                51% { left: 85%; opacity: 0; }
-                                52% { left: 15%; opacity: 0; }
-                                100% { left: 15%; opacity: 1; }
-                            }
-                        `}</style>
-                         <div className="bg-white p-1 rounded-full shadow-md">
-                             <Bike size={20} fill="currentColor" className="text-brand-red"/>
+                         <div className="bg-white p-1 rounded-full shadow-xl border border-blue-100 flex items-center justify-center">
+                             <Bike size={18} className="text-brand-red transform -scale-x-100"/>
                          </div>
+                         {/* Location Pings */}
+                         <motion.div 
+                            className="absolute inset-0 bg-blue-400 rounded-full z-[-1]"
+                            animate={{ scale: [1, 2], opacity: [0.5, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                         />
+                    </motion.div>
+
+                    {/* Simulation Labels */}
+                    <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center pointer-events-none">
+                      <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg border border-gray-100 flex items-center gap-1">
+                        <User size={10} className="text-blue-500" />
+                        <span className="text-[10px] font-bold text-gray-700">Driver: John</span>
+                      </div>
+                      <div className="bg-brand-red/90 backdrop-blur-sm px-2 py-1 rounded-lg text-white animate-pulse">
+                        <span className="text-[10px] font-bold">Driving Fast! ⚡</span>
+                      </div>
                     </div>
                 </div>
              )}
@@ -151,21 +214,39 @@ export const OrderHistoryModal: React.FC = () => {
 
         {/* Pickup Action */}
         {order.details.orderType === 'pickup' && currentStatus === 'ready' && (
-           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-3 text-center animate-fade-in shadow-sm">
-             <div className="inline-block p-2 bg-green-100 text-green-600 rounded-full mb-2">
-                <Store size={24} />
-             </div>
-             <p className="text-green-800 font-bold text-base mb-1">Ready for Pickup! 🥡</p>
-             <p className="text-xs text-green-700 mb-3">Head to the counter to grab your feast.</p>
+           <div className="relative overflow-hidden bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 mb-3 text-center animate-fade-in shadow-xl">
+             {/* Decorative Background Elements */}
+             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+             <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full -ml-16 -mb-16 blur-2xl" />
              
-             <a 
-               href={`https://www.google.com/maps/dir/?api=1&destination=${STORE_COORDINATES.lat},${STORE_COORDINATES.lng}`}
-               target="_blank"
-               rel="noreferrer"
-               className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-green-200 rounded-lg text-xs font-bold shadow-sm hover:bg-green-50 text-green-800 transition"
-             >
-               <MapPin size={14}/> Get Directions
-             </a>
+             <div className="relative z-10">
+                <motion.div 
+                  className="inline-block p-4 bg-white/20 backdrop-blur-md text-white rounded-full mb-4 ring-8 ring-white/10"
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  <Store size={40} />
+                </motion.div>
+                <h3 className="text-white font-display font-bold text-2xl mb-2 drop-shadow-md">It's Ready! 🥡</h3>
+                <p className="text-green-50 font-medium text-sm mb-6 max-w-xs mx-auto">Your feast is hot and waiting at the counter. Come and get it!</p>
+                
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <a 
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${STORE_COORDINATES.lat},${STORE_COORDINATES.lng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-emerald-700 rounded-xl font-bold text-sm shadow-lg hover:bg-green-50 transition-all active:scale-95"
+                  >
+                    <MapPin size={18}/> Get Directions
+                  </a>
+                  <button className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700/50 backdrop-blur-sm text-white border border-white/20 rounded-xl font-bold text-sm shadow-lg hover:bg-emerald-700/70 transition-all active:scale-95">
+                    <CheckCircle size={18} /> I'm Here!
+                  </button>
+                </div>
+             </div>
            </div>
         )}
       </div>
